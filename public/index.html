@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuizMint | capillary</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ─── RESET & BASE ────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue: #2080BD;
+      --blue-light: #26A9E1;
+      --green: #399D49;
+      --yellow: #F3CF02;
+      --orange: #DB5226;
+      --dark: #212121;
+      --gray: #58595B;
+      --gray-light: #f7f8fa;
+      --gray-mid: #e8ecf0;
+      --white: #ffffff;
+      --teal: #1B848D;
+      --engage-teal: #23959A;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+      --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+      --shadow-lg: 0 8px 32px rgba(0,0,0,0.10);
+      --radius: 12px;
+      --radius-lg: 16px;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--gray-light);
+      color: var(--dark);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── HEADER ──────────────────────────────────────── */
+    .header {
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-mid);
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .header-logo {
+      height: 36px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    /* ─── MAIN CONTAINER ──────────────────────────────── */
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px 24px 64px;
+    }
+
+    /* ─── HERO SECTION ────────────────────────────────── */
+    .hero {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    .hero h1 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--dark);
+      margin-bottom: 8px;
+    }
+
+    .hero-tagline {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 17px;
+      font-weight: 500;
+      color: var(--blue);
+      margin-bottom: 4px;
+    }
+
+    .hero p {
+      color: var(--gray);
+      font-size: 15px;
+      font-weight: 400;
+      line-height: 1.5;
+    }
+
+    /* ─── CARD ────────────────────────────────────────── */
+    .card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      padding: 32px;
+      margin-bottom: 24px;
+      border: 1px solid var(--gray-mid);
+      transition: box-shadow 0.2s;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .card-header .step-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--blue), var(--blue-light));
+      color: white;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .card-header h2 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--dark);
+    }
+
+    /* ─── DROPZONE ────────────────────────────────────── */
+    .dropzone {
+      border: 2px dashed var(--gray-mid);
+      border-radius: var(--radius);
+      padding: 48px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      position: relative;
+      background: var(--gray-light);
+    }
+
+    .dropzone:hover, .dropzone.drag-over {
+      border-color: var(--blue);
+      background: #f0f8ff;
+      box-shadow: 0 0 0 4px rgba(32, 128, 189, 0.08);
+    }
+
+    .dropzone.has-files {
+      border-color: var(--green);
+      background: #f4faf5;
+    }
+
+    .dropzone-icon {
+      width: 56px;
+      height: 56px;
+      margin: 0 auto 16px;
+      background: linear-gradient(135deg, var(--blue), var(--blue-light));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .dropzone-icon svg { width: 28px; height: 28px; fill: white; }
+
+    .dropzone h3 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 6px;
+    }
+
+    .dropzone p {
+      color: var(--gray);
+      font-size: 13px;
+    }
+
+    .dropzone p .link {
+      color: var(--blue);
+      font-weight: 600;
+      text-decoration: underline;
+    }
+
+    .dropzone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    /* ─── FILE LIST ───────────────────────────────────── */
+    .file-list {
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .file-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--gray-light);
+      border: 1px solid var(--gray-mid);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      animation: fadeSlideIn 0.3s ease;
+    }
+
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .file-item-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .file-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--blue), var(--teal));
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .file-icon svg { width: 16px; height: 16px; fill: white; }
+
+    .file-name {
+      font-weight: 500;
+      color: var(--dark);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .file-size {
+      color: var(--gray);
+      font-size: 12px;
+      flex-shrink: 0;
+      margin-left: 8px;
+    }
+
+    .file-remove {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--gray);
+      padding: 4px;
+      border-radius: 4px;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+
+    .file-remove:hover { color: var(--orange); background: #fef2ee; }
+
+    /* ─── BUTTONS ─────────────────────────────────────── */
+    .btn {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      padding: 12px 28px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--blue), var(--blue-light));
+      color: white;
+      box-shadow: 0 2px 8px rgba(32, 128, 189, 0.25);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      box-shadow: 0 4px 16px rgba(32, 128, 189, 0.35);
+      transform: translateY(-1px);
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, var(--green), #2ecc71);
+      color: white;
+      box-shadow: 0 2px 8px rgba(57, 157, 73, 0.25);
+    }
+
+    .btn-success:hover:not(:disabled) {
+      box-shadow: 0 4px 16px rgba(57, 157, 73, 0.35);
+      transform: translateY(-1px);
+    }
+
+    .btn-outline {
+      background: var(--white);
+      color: var(--blue);
+      border: 2px solid var(--blue);
+    }
+
+    .btn-outline:hover:not(:disabled) {
+      background: #f0f8ff;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+
+    /* ─── PROGRESS BAR ────────────────────────────────── */
+    .progress-container {
+      display: none;
+      margin-top: 20px;
+    }
+
+    .progress-container.active { display: block; }
+
+    .progress-bar-track {
+      height: 6px;
+      background: var(--gray-mid);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--blue), var(--green), var(--yellow));
+      background-size: 200% 100%;
+      border-radius: 3px;
+      transition: width 0.4s ease;
+      animation: shimmer 2s linear infinite;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    .progress-text {
+      font-size: 13px;
+      color: var(--gray);
+      margin-top: 8px;
+      text-align: center;
+    }
+
+    /* ─── RESULTS ─────────────────────────────────────── */
+    .results-section {
+      display: none;
+    }
+
+    .results-section.active { display: block; }
+
+    .result-file {
+      background: var(--gray-light);
+      border: 1px solid var(--gray-mid);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 16px;
+      animation: fadeSlideIn 0.3s ease;
+    }
+
+    .result-file-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .result-file-title {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--dark);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .result-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 10px;
+      background: #e8f5e9;
+      color: var(--green);
+    }
+
+    .result-badge.error {
+      background: #fdecea;
+      color: var(--orange);
+    }
+
+    /* ─── PREVIEW ─────────────────────────────────────── */
+    .preview-toggle {
+      background: none;
+      border: none;
+      color: var(--blue);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 4px 0;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .preview-toggle:hover { text-decoration: underline; }
+
+    .preview-content {
+      display: none;
+      margin-top: 12px;
+    }
+
+    .preview-content.open { display: block; }
+
+    .preview-questions {
+      max-height: 400px;
+      overflow-y: auto;
+      border: 1px solid var(--gray-mid);
+      border-radius: 8px;
+      background: var(--white);
+    }
+
+    .preview-question {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--gray-mid);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .preview-question:last-child { border-bottom: none; }
+
+    .preview-q-num {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      color: var(--blue);
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+
+    .preview-q-text {
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 8px;
+    }
+
+    .preview-option {
+      padding: 2px 0;
+      color: var(--gray);
+    }
+
+    .preview-option.correct {
+      color: var(--green);
+      font-weight: 600;
+    }
+
+    .preview-option.correct::before {
+      content: '';
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background: var(--green);
+      border-radius: 50%;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    /* ─── GIFT CODE PREVIEW ───────────────────────────── */
+    .gift-preview {
+      margin-top: 12px;
+      display: none;
+    }
+
+    .gift-preview.open { display: block; }
+
+    .gift-code {
+      background: #1e1e2e;
+      color: #cdd6f4;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      line-height: 1.6;
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      max-height: 300px;
+      overflow-y: auto;
+      white-space: pre;
+    }
+
+    .gift-code .gift-title { color: #f9e2af; }
+    .gift-code .gift-correct { color: #a6e3a1; }
+    .gift-code .gift-wrong { color: #f38ba8; }
+    .gift-code .gift-brace { color: #89b4fa; }
+
+    /* ─── SUCCESS STATE ───────────────────────────────── */
+    .success-banner {
+      display: none;
+      background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
+      border: 1px solid #c8e6c9;
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-bottom: 20px;
+      text-align: center;
+      animation: fadeSlideIn 0.4s ease;
+    }
+
+    .success-banner.active { display: block; }
+
+    .success-banner .check-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--green);
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+
+    .success-banner .check-icon svg { width: 24px; height: 24px; fill: white; }
+
+    .success-banner h3 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--green);
+      margin-bottom: 4px;
+    }
+
+    .success-banner p {
+      color: var(--gray);
+      font-size: 13px;
+    }
+
+    /* ─── ERROR MESSAGES ──────────────────────────────── */
+    .error-item {
+      background: #fdecea;
+      border: 1px solid #f5c6cb;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 8px;
+      font-size: 13px;
+      color: var(--orange);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ─── TABS ────────────────────────────────────────── */
+    .tab-row {
+      display: flex;
+      gap: 0;
+      border-bottom: 2px solid var(--gray-mid);
+      margin-bottom: 16px;
+    }
+
+    .tab-btn {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gray);
+      background: none;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      color: var(--blue);
+      border-bottom-color: var(--blue);
+    }
+
+    .tab-btn:hover { color: var(--dark); }
+
+    /* ─── FOOTER ──────────────────────────────────────── */
+    .footer {
+      text-align: center;
+      padding: 24px;
+      color: var(--gray);
+      font-size: 12px;
+    }
+
+    .footer a {
+      color: var(--blue);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    /* ─── SPINNER ─────────────────────────────────────── */
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ─── RESPONSIVE ──────────────────────────────────── */
+    @media (max-width: 640px) {
+      .container { padding: 20px 16px 48px; }
+      .card { padding: 20px; }
+      .dropzone { padding: 32px 16px; }
+      .hero h1 { font-size: 22px; }
+      .btn-group { flex-direction: column; }
+      .btn { width: 100%; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-left">
+      <img src="capillary-logo.png" alt="capillary" class="header-logo">
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="container">
+
+    <!-- HERO -->
+    <div class="hero">
+      <h1>QuizMint</h1>
+      <p class="hero-tagline">Mint your quizzes instantly</p>
+      <p>Upload your .docx files and get perfectly formatted GIFT output for your LMS</p>
+    </div>
+
+    <!-- STEP 1: UPLOAD -->
+    <div class="card" id="uploadCard">
+      <div class="card-header">
+        <div class="step-num">1</div>
+        <h2>Upload Documents</h2>
+      </div>
+
+      <div class="dropzone" id="dropzone">
+        <div class="dropzone-icon">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 9v4h-2v-4H8l4-4 4 4h-3zm-3-6V3.5L16.5 9H10z"/></svg>
+        </div>
+        <h3>Drag & drop your .docx files here</h3>
+        <p>or <span class="link">browse files</span> &middot; Up to 30 files, .docx only</p>
+        <input type="file" id="fileInput" multiple accept=".docx">
+      </div>
+
+      <div class="file-list" id="fileList"></div>
+
+      <div class="btn-group">
+        <button class="btn btn-primary" id="convertBtn" disabled>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+          Convert to GIFT
+        </button>
+        <button class="btn btn-outline" id="clearBtn" style="display:none;">Clear All</button>
+      </div>
+
+      <div class="progress-container" id="progress">
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" id="progressFill" style="width: 0%"></div>
+        </div>
+        <div class="progress-text" id="progressText">Preparing...</div>
+      </div>
+    </div>
+
+    <!-- SUCCESS BANNER -->
+    <div class="success-banner" id="successBanner">
+      <div class="check-icon">
+        <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+      </div>
+      <h3>Conversion Complete</h3>
+      <p id="successText">All files converted successfully</p>
+    </div>
+
+    <!-- STEP 2: RESULTS -->
+    <div class="card results-section" id="resultsCard">
+      <div class="card-header">
+        <div class="step-num">2</div>
+        <h2>Results</h2>
+      </div>
+
+      <div id="errorsList"></div>
+      <div id="resultsList"></div>
+
+      <div class="btn-group" id="downloadGroup" style="display:none;">
+        <button class="btn btn-success" id="downloadAllBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download All (Merged)
+        </button>
+        <button class="btn btn-outline" id="downloadSeparateBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download Separately
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    Built for <a href="#">capillary</a> &middot; QuizMint
+  </div>
+
+  <script>
+    // ─── STATE ──────────────────────────────────────────
+    let selectedFiles = [];
+    let conversionResults = [];
+
+    // ─── DOM REFS ───────────────────────────────────────
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+    const fileList = document.getElementById('fileList');
+    const convertBtn = document.getElementById('convertBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const progress = document.getElementById('progress');
+    const progressFill = document.getElementById('progressFill');
+    const progressText = document.getElementById('progressText');
+    const resultsCard = document.getElementById('resultsCard');
+    const resultsList = document.getElementById('resultsList');
+    const errorsList = document.getElementById('errorsList');
+    const successBanner = document.getElementById('successBanner');
+    const successText = document.getElementById('successText');
+    const downloadGroup = document.getElementById('downloadGroup');
+    const downloadAllBtn = document.getElementById('downloadAllBtn');
+    const downloadSeparateBtn = document.getElementById('downloadSeparateBtn');
+
+    // ─── DRAG & DROP ────────────────────────────────────
+    dropzone.addEventListener('dragover', e => {
+      e.preventDefault();
+      dropzone.classList.add('drag-over');
+    });
+
+    dropzone.addEventListener('dragleave', () => {
+      dropzone.classList.remove('drag-over');
+    });
+
+    dropzone.addEventListener('drop', e => {
+      e.preventDefault();
+      dropzone.classList.remove('drag-over');
+      const files = Array.from(e.dataTransfer.files).filter(f => f.name.endsWith('.docx'));
+      addFiles(files);
+    });
+
+    fileInput.addEventListener('change', () => {
+      addFiles(Array.from(fileInput.files));
+      fileInput.value = '';
+    });
+
+    // ─── FILE MANAGEMENT ────────────────────────────────
+    function addFiles(files) {
+      for (const file of files) {
+        if (selectedFiles.length >= 30) break;
+        if (selectedFiles.some(f => f.name === file.name)) continue;
+        selectedFiles.push(file);
+      }
+      renderFileList();
+      updateUI();
+    }
+
+    function removeFile(index) {
+      selectedFiles.splice(index, 1);
+      renderFileList();
+      updateUI();
+    }
+
+    function renderFileList() {
+      fileList.innerHTML = selectedFiles.map((file, i) => `
+        <div class="file-item">
+          <div class="file-item-left">
+            <div class="file-icon">
+              <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 7V3.5L19.5 9H13z"/></svg>
+            </div>
+            <span class="file-name">${file.name}</span>
+          </div>
+          <div style="display:flex;align-items:center;">
+            <span class="file-size">${formatSize(file.size)}</span>
+            <button class="file-remove" onclick="removeFile(${i})" title="Remove">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+        </div>
+      `).join('');
+
+      dropzone.classList.toggle('has-files', selectedFiles.length > 0);
+    }
+
+    function updateUI() {
+      convertBtn.disabled = selectedFiles.length === 0;
+      clearBtn.style.display = selectedFiles.length > 0 ? 'inline-flex' : 'none';
+    }
+
+    function formatSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    // ─── CLEAR ──────────────────────────────────────────
+    clearBtn.addEventListener('click', () => {
+      selectedFiles = [];
+      conversionResults = [];
+      renderFileList();
+      updateUI();
+      resultsCard.classList.remove('active');
+      successBanner.classList.remove('active');
+      progress.classList.remove('active');
+    });
+
+    // ─── CONVERT ────────────────────────────────────────
+    convertBtn.addEventListener('click', async () => {
+      if (selectedFiles.length === 0) return;
+
+      // Reset results
+      conversionResults = [];
+      resultsList.innerHTML = '';
+      errorsList.innerHTML = '';
+      resultsCard.classList.remove('active');
+      successBanner.classList.remove('active');
+      downloadGroup.style.display = 'none';
+
+      // Show progress
+      progress.classList.add('active');
+      progressFill.style.width = '10%';
+      progressText.textContent = 'Uploading files...';
+      convertBtn.disabled = true;
+      convertBtn.innerHTML = '<div class="spinner"></div> Converting...';
+
+      try {
+        const formData = new FormData();
+        selectedFiles.forEach(f => formData.append('files', f));
+
+        progressFill.style.width = '40%';
+        progressText.textContent = 'Processing documents...';
+
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        progressFill.style.width = '80%';
+        progressText.textContent = 'Generating GIFT format...';
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Server error');
+        }
+
+        await new Promise(r => setTimeout(r, 400)); // Brief pause for UX
+
+        progressFill.style.width = '100%';
+        progressText.textContent = 'Done!';
+
+        conversionResults = data.results || [];
+        const errors = data.errors || [];
+
+        // Show results
+        setTimeout(() => {
+          progress.classList.remove('active');
+          showResults(conversionResults, errors);
+        }, 500);
+
+      } catch (err) {
+        progress.classList.remove('active');
+        errorsList.innerHTML = `<div class="error-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>${err.message}</div>`;
+        resultsCard.classList.add('active');
+      } finally {
+        convertBtn.disabled = false;
+        convertBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>Convert to GIFT`;
+      }
+    });
+
+    // ─── SHOW RESULTS ───────────────────────────────────
+    function showResults(results, errors) {
+      // Success banner
+      if (results.length > 0) {
+        const totalQ = results.reduce((sum, r) => sum + r.questionCount, 0);
+        successText.textContent = `${results.length} file${results.length > 1 ? 's' : ''} converted \u2022 ${totalQ} questions extracted`;
+        successBanner.classList.add('active');
+      }
+
+      // Errors
+      errorsList.innerHTML = errors.map(e => `
+        <div class="error-item">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+          <strong>${e.filename}</strong>: ${e.error}
+        </div>
+      `).join('');
+
+      // Results
+      resultsList.innerHTML = results.map((r, idx) => `
+        <div class="result-file">
+          <div class="result-file-header">
+            <div class="result-file-title">
+              ${r.filename}
+              <span class="result-badge">${r.questionCount} questions</span>
+            </div>
+            <button class="btn btn-success" style="padding:8px 16px;font-size:12px;" onclick="downloadSingle(${idx})">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download
+            </button>
+          </div>
+
+          <div class="tab-row">
+            <button class="tab-btn active" onclick="switchTab(this, 'preview-${idx}', 'gift-${idx}')">Preview</button>
+            <button class="tab-btn" onclick="switchTab(this, 'gift-${idx}', 'preview-${idx}')">GIFT Code</button>
+          </div>
+
+          <div id="preview-${idx}" class="preview-content open">
+            <div class="preview-questions">
+              ${r.questions.map(q => `
+                <div class="preview-question">
+                  <div class="preview-q-num">Question ${q.number}</div>
+                  <div class="preview-q-text">${escapeHtml(q.text)}</div>
+                  ${q.optionOrder.map(letter => `
+                    <div class="preview-option ${letter === q.answerLetter ? 'correct' : ''}">
+                      ${letter}) ${escapeHtml(q.options[letter])}
+                    </div>
+                  `).join('')}
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <div id="gift-${idx}" class="gift-preview">
+            <div class="gift-code">${highlightGift(r.giftContent)}</div>
+          </div>
+        </div>
+      `).join('');
+
+      // Show download buttons
+      if (results.length > 0) {
+        downloadGroup.style.display = 'flex';
+        if (results.length === 1) {
+          downloadAllBtn.textContent = 'Download GIFT File';
+          downloadSeparateBtn.style.display = 'none';
+        } else {
+          downloadAllBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download All (Merged)`;
+          downloadSeparateBtn.style.display = 'inline-flex';
+        }
+      }
+
+      resultsCard.classList.add('active');
+    }
+
+    // ─── TAB SWITCHING ──────────────────────────────────
+    function switchTab(btn, showId, hideId) {
+      btn.parentElement.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(showId).classList.add('open');
+      document.getElementById(hideId).classList.remove('open');
+    }
+
+    // ─── SYNTAX HIGHLIGHTING ────────────────────────────
+    function highlightGift(text) {
+      return escapeHtml(text)
+        .split('\n')
+        .map(line => {
+          if (line.startsWith('::')) return `<span class="gift-title">${line}</span>`;
+          if (line.startsWith('=')) return `<span class="gift-correct">${line}</span>`;
+          if (line.startsWith('~')) return `<span class="gift-wrong">${line}</span>`;
+          if (line === '{' || line === '}') return `<span class="gift-brace">${line}</span>`;
+          return line;
+        })
+        .join('\n');
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // ─── DOWNLOAD ───────────────────────────────────────
+    function downloadSingle(idx) {
+      const r = conversionResults[idx];
+      downloadBlob(r.giftContent, r.outputName);
+    }
+
+    downloadAllBtn.addEventListener('click', () => {
+      if (conversionResults.length === 1) {
+        downloadSingle(0);
+        return;
+      }
+      const merged = conversionResults.map(r => r.giftContent.trimEnd()).join('\n\n');
+      downloadBlob(merged + '\n', 'merged_gift.txt');
+    });
+
+    downloadSeparateBtn.addEventListener('click', () => {
+      conversionResults.forEach((r, i) => {
+        setTimeout(() => downloadBlob(r.giftContent, r.outputName), i * 200);
+      });
+    });
+
+    function downloadBlob(content, filename) {
+      const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>

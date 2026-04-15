@@ -1,0 +1,23 @@
+{
+  "name": "gift-converter",
+  "version": "1.0.0",
+  "description": "QuizMint - Convert Word MCQs to GIFT format",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "adm-zip": "^0.5.17",
+    "docx-parser": "^0.2.1",
+    "express": "^5.2.1",
+    "mammoth": "^1.12.0",
+    "multer": "^2.1.1"
+  }
+}
