@@ -92,10 +92,18 @@ async function parseDocx(filePath) {
 
 // ─── PDF PARSER ──────────────────────────────────────────────────────
 async function parsePdf(filePath) {
-  const pdfParse = require('pdf-parse');
-  const buffer = fs.readFileSync(filePath);
-  const data = await pdfParse(buffer);
-  const text = normalizeText(data.text);
+  const pdfjsLib = require('pdfjs-dist/legacy/build/pdf.mjs');
+  const data = new Uint8Array(fs.readFileSync(filePath));
+  const standardFontDataUrl = path.join(__dirname, 'node_modules', 'pdfjs-dist', 'standard_fonts') + '/';
+  const doc = await pdfjsLib.getDocument({ data, standardFontDataUrl, verbosity: 0 }).promise;
+  let fullText = '';
+  for (let i = 1; i <= doc.numPages; i++) {
+    const page = await doc.getPage(i);
+    const content = await page.getTextContent();
+    const pageText = content.items.map(item => item.hasEOL ? item.str + '\n' : item.str).join('');
+    fullText += pageText + '\n';
+  }
+  const text = normalizeText(fullText);
   return [{ style: 'normal', text }];
 }
 
