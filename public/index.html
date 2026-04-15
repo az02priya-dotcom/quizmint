@@ -627,6 +627,34 @@
 
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    /* ─── PASTE TEXTAREA ─────────────────────────────── */
+    #pasteArea {
+      width: 100%;
+      min-height: 220px;
+      padding: 16px;
+      border: 2px solid var(--gray-mid);
+      border-radius: var(--radius);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--dark);
+      background: var(--gray-light);
+      resize: vertical;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+
+    #pasteArea:focus {
+      border-color: var(--blue);
+      background: #f0f8ff;
+      box-shadow: 0 0 0 4px rgba(32, 128, 189, 0.08);
+    }
+
+    #pasteArea::placeholder {
+      color: #b0b5bb;
+      font-size: 13px;
+    }
+
     /* ─── RESPONSIVE ──────────────────────────────────── */
     @media (max-width: 640px) {
       .container { padding: 20px 16px 48px; }
@@ -654,26 +682,58 @@
     <div class="hero">
       <h1>QuizMint</h1>
       <p class="hero-tagline">Mint your quizzes instantly</p>
-      <p>Upload your .docx files and get perfectly formatted GIFT output for your LMS</p>
+      <p>Upload files or paste questions in any format — get perfectly formatted GIFT output for your LMS</p>
     </div>
 
-    <!-- STEP 1: UPLOAD -->
+    <!-- STEP 1: INPUT -->
     <div class="card" id="uploadCard">
       <div class="card-header">
         <div class="step-num">1</div>
-        <h2>Upload Documents</h2>
+        <h2>Add Your Questions</h2>
       </div>
 
-      <div class="dropzone" id="dropzone">
-        <div class="dropzone-icon">
-          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 9v4h-2v-4H8l4-4 4 4h-3zm-3-6V3.5L16.5 9H10z"/></svg>
+      <!-- Input mode tabs -->
+      <div class="tab-row" id="inputTabs">
+        <button class="tab-btn active" onclick="switchInputMode('file', this)">Upload Files</button>
+        <button class="tab-btn" onclick="switchInputMode('paste', this)">Paste Text</button>
+      </div>
+
+      <!-- FILE UPLOAD MODE -->
+      <div id="fileMode">
+        <div class="dropzone" id="dropzone">
+          <div class="dropzone-icon">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 9v4h-2v-4H8l4-4 4 4h-3zm-3-6V3.5L16.5 9H10z"/></svg>
+          </div>
+          <h3>Drag & drop your files here</h3>
+          <p>or <span class="link">browse files</span> &middot; Up to 30 files</p>
+          <p style="margin-top:6px;font-size:12px;color:#999;">.docx &middot; .pdf &middot; .txt &middot; .xlsx &middot; .csv</p>
+          <input type="file" id="fileInput" multiple accept=".docx,.doc,.pdf,.txt,.xlsx,.xls,.csv">
         </div>
-        <h3>Drag & drop your .docx files here</h3>
-        <p>or <span class="link">browse files</span> &middot; Up to 30 files, .docx only</p>
-        <input type="file" id="fileInput" multiple accept=".docx">
+
+        <div class="file-list" id="fileList"></div>
       </div>
 
-      <div class="file-list" id="fileList"></div>
+      <!-- PASTE TEXT MODE -->
+      <div id="pasteMode" style="display:none;">
+        <textarea id="pasteArea" placeholder="Paste your questions here in any format...
+
+Example formats that work:
+
+1. What is the capital of France?
+a) London
+b) Paris
+c) Berlin
+d) Madrid
+Answer: b
+
+Q2. Which planet is closest to the sun?
+a) Venus
+b) Earth
+c) Mercury
+d) Mars
+Correct Answer: c) Mercury"></textarea>
+        <p style="font-size:12px;color:#999;margin-top:8px;">Supports numbered questions, lettered options (a/b/c/d), and answer markers (Answer:, Correct:, Ans:)</p>
+      </div>
 
       <div class="btn-group">
         <button class="btn btn-primary" id="convertBtn" disabled>
@@ -733,6 +793,9 @@
     // ─── STATE ──────────────────────────────────────────
     let selectedFiles = [];
     let conversionResults = [];
+    let inputMode = 'file'; // 'file' or 'paste'
+
+    const ALLOWED_EXTENSIONS = ['.docx', '.doc', '.pdf', '.txt', '.xlsx', '.xls', '.csv'];
 
     // ─── DOM REFS ───────────────────────────────────────
     const dropzone = document.getElementById('dropzone');
@@ -751,6 +814,22 @@
     const downloadGroup = document.getElementById('downloadGroup');
     const downloadAllBtn = document.getElementById('downloadAllBtn');
     const downloadSeparateBtn = document.getElementById('downloadSeparateBtn');
+    const pasteArea = document.getElementById('pasteArea');
+    const fileMode = document.getElementById('fileMode');
+    const pasteMode = document.getElementById('pasteMode');
+
+    // ─── INPUT MODE SWITCHING ───────────────────────────
+    function switchInputMode(mode, btn) {
+      inputMode = mode;
+      document.querySelectorAll('#inputTabs .tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      fileMode.style.display = mode === 'file' ? 'block' : 'none';
+      pasteMode.style.display = mode === 'paste' ? 'block' : 'none';
+      updateUI();
+    }
+
+    // Listen for paste area input
+    pasteArea.addEventListener('input', updateUI);
 
     // ─── DRAG & DROP ────────────────────────────────────
     dropzone.addEventListener('dragover', e => {
@@ -765,7 +844,10 @@
     dropzone.addEventListener('drop', e => {
       e.preventDefault();
       dropzone.classList.remove('drag-over');
-      const files = Array.from(e.dataTransfer.files).filter(f => f.name.endsWith('.docx'));
+      const files = Array.from(e.dataTransfer.files).filter(f => {
+        const ext = '.' + f.name.split('.').pop().toLowerCase();
+        return ALLOWED_EXTENSIONS.includes(ext);
+      });
       addFiles(files);
     });
 
@@ -813,8 +895,13 @@
     }
 
     function updateUI() {
-      convertBtn.disabled = selectedFiles.length === 0;
-      clearBtn.style.display = selectedFiles.length > 0 ? 'inline-flex' : 'none';
+      if (inputMode === 'file') {
+        convertBtn.disabled = selectedFiles.length === 0;
+        clearBtn.style.display = selectedFiles.length > 0 ? 'inline-flex' : 'none';
+      } else {
+        convertBtn.disabled = !pasteArea.value.trim();
+        clearBtn.style.display = pasteArea.value.trim() ? 'inline-flex' : 'none';
+      }
     }
 
     function formatSize(bytes) {
@@ -827,6 +914,7 @@
     clearBtn.addEventListener('click', () => {
       selectedFiles = [];
       conversionResults = [];
+      pasteArea.value = '';
       renderFileList();
       updateUI();
       resultsCard.classList.remove('active');
@@ -836,7 +924,8 @@
 
     // ─── CONVERT ────────────────────────────────────────
     convertBtn.addEventListener('click', async () => {
-      if (selectedFiles.length === 0) return;
+      const hasInput = inputMode === 'file' ? selectedFiles.length > 0 : pasteArea.value.trim();
+      if (!hasInput) return;
 
       // Reset results
       conversionResults = [];
@@ -849,21 +938,34 @@
       // Show progress
       progress.classList.add('active');
       progressFill.style.width = '10%';
-      progressText.textContent = 'Uploading files...';
+      progressText.textContent = inputMode === 'file' ? 'Uploading files...' : 'Processing text...';
       convertBtn.disabled = true;
       convertBtn.innerHTML = '<div class="spinner"></div> Converting...';
 
       try {
-        const formData = new FormData();
-        selectedFiles.forEach(f => formData.append('files', f));
+        let response;
 
-        progressFill.style.width = '40%';
-        progressText.textContent = 'Processing documents...';
+        if (inputMode === 'file') {
+          const formData = new FormData();
+          selectedFiles.forEach(f => formData.append('files', f));
 
-        const response = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData
-        });
+          progressFill.style.width = '40%';
+          progressText.textContent = 'Processing documents...';
+
+          response = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData
+          });
+        } else {
+          progressFill.style.width = '40%';
+          progressText.textContent = 'Extracting questions...';
+
+          response = await fetch('/api/paste', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: pasteArea.value })
+          });
+        }
 
         progressFill.style.width = '80%';
         progressText.textContent = 'Generating GIFT format...';
@@ -874,7 +976,7 @@
           throw new Error(data.error || 'Server error');
         }
 
-        await new Promise(r => setTimeout(r, 400)); // Brief pause for UX
+        await new Promise(r => setTimeout(r, 400));
 
         progressFill.style.width = '100%';
         progressText.textContent = 'Done!';
@@ -882,7 +984,6 @@
         conversionResults = data.results || [];
         const errors = data.errors || [];
 
-        // Show results
         setTimeout(() => {
           progress.classList.remove('active');
           showResults(conversionResults, errors);
